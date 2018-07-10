@@ -1,5 +1,31 @@
 import copy
 from config_board import neighbor_positions,board_position, position_to_num
+import os
+import sys
+def getFileContent(fName):
+    if os.path.exists(fName):
+        with open(fName, 'r') as f:
+            try:
+                file_content = f.read()
+                print("Input position   : {}".format(file_content))
+                return file_content
+            except : 
+                print('Error opening the file')
+                sys.exit()
+            finally:
+                f.close()
+
+def writeToFile(fOut, file_content):
+    try:
+        with open(fOut, 'w') as dest:
+            dest.write(file_content)
+            print("Output position  : {}".format(file_content))
+    except IOError as e:
+        print("I/O error({0}): {1}".format(e.errno, e.strerror))
+        sys.exit()
+    finally:
+        dest.close()
+
 class Node:
     def __init__(self):
         self.position = None
