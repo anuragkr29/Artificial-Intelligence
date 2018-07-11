@@ -2,6 +2,37 @@ import copy
 from config_board import neighbor_positions,board_position, position_to_num
 import os
 import sys
+
+def MiniMax(root, depth, isMaxStep):
+    children = fun.GenerateMovesOpening(root)
+    if depth == 0 or len(children) ==0 :
+        return fun.SEOpening(root)
+    elif isMaxStep:
+        v = float("-inf")
+        for child in children:
+            v = max(v,MiniMax(child, depth-1, False))
+        return v
+    elif not isMaxStep:
+        v = float("inf")
+        for child in children:
+            v = min(v,MiniMax(child, depth-1, True))
+        return v
+def alphabeta(root, depth, alpha, beta, isMaxStep):
+    children = GenerateMovesOpening(root)
+    if depth == 0 or len(children) ==0 :
+        return SEOpening(root)
+    elif isMaxStep:
+        for child in children:
+            alpha = max(alpha,alphabeta(child, depth-1,alpha, beta, False))
+            if alpha>= beta:
+                break
+        return alpha
+    elif not isMaxStep:
+        for child in children:
+            beta = min(beta,alphabeta(child, depth-1,alpha, beta, True))
+            if alpha>= beta:
+                break
+        return beta
 def getFileContent(fName):
     if os.path.exists(fName):
         with open(fName, 'r') as f:
