@@ -7,53 +7,54 @@ def run(state, method, *args):
     if state == 'opening':
         if method == 'minimax':
             print('calling GenerateMovesOpening with Minimax');
-            return MiniMax(GenerateMovesOpening,*args),GenerateMovesOpening(args[0])
+            return MiniMax(GenerateMovesOpening, SEOpening, *args),GenerateMovesOpening(args[0])
         else :
             print('calling GenerateMovesOpening with AlphaBeta');
-            return AlphaBeta(GenerateMovesOpening,*args),GenerateMovesOpening(args[0])
+            return AlphaBeta(GenerateMovesOpening, SEOpening,*args),GenerateMovesOpening(args[0])
     elif state == 'midgame' or state == 'endgame':
         if method == 'minimax':
             print('calling GenerateMovesMidgameEndgame with Minimax');
-            return MiniMax(GenerateMovesMidgameEndgame,*args),GenerateMovesMidgameEndgame(args[0])
+            return MiniMax(GenerateMovesMidgameEndgame, StaticEstimate,*args),GenerateMovesMidgameEndgame(args[0])
         else :
             print('calling GenerateMovesMidgameEndgame with AlphaBeta');
-            return AlphaBeta(GenerateMovesMidgameEndgame,*args),GenerateMovesMidgameEndgame(args[0])
+            return AlphaBeta(GenerateMovesMidgameEndgame, StaticEstimate, *args),GenerateMovesMidgameEndgame(args[0])
     else :
         raise Exception('Enter a correct state and method');
-def MiniMax(successor, root, depth, isMaxStep):
+def MiniMax(successor, staticFun, root, depth, isMaxStep):
     children = successor(root)
     if depth == 0 or len(children) ==0 :
-        return SEOpening(root)
+        return staticFun(root),root
     elif isMaxStep:
         v = float("-inf")
         for child in children:
-            v = max(v,MiniMax(successor,child, depth-1, False))
-        return v
+            v = max(v,MiniMax(successor, staticFun,child, depth-1, False)[0])
+        return v,child
     elif not isMaxStep:
         v = float("inf")
         for child in children:
-            v = min(v,MiniMax(successor,child, depth-1, True))
-        return v
-def AlphaBeta(successor, root, depth, isMaxStep, alpha=None, beta=None):
+            v = min(v,MiniMax(successor, staticFun,child, depth-1, True)[0])
+        return v,child
+def AlphaBeta(successor, staticFun, root, depth, isMaxStep, alpha=None, beta=None):
     if alpha is None :
         alpha = float('-inf')
     if beta is None:
         beta = float('inf')
     children = successor(root)
     if depth == 0 or len(children) ==0 :
-        return SEOpening(root)
+        val= staticFun(root,children)
+        return (val,root)
     elif isMaxStep:
         for child in children:
-            alpha = max(alpha, AlphaBeta(successor, child, depth-1, False, alpha, beta))
+            alpha = max(alpha, AlphaBeta(successor, staticFun, child, depth-1, False, alpha, beta)[0])
             if alpha>= beta:
                 break
-        return alpha
+        return (alpha,child)
     elif not isMaxStep:
         for child in children:
-            beta = min(beta, AlphaBeta(successor, child, depth-1, True, alpha, beta))
+            beta = min(beta, AlphaBeta(successor, staticFun, child, depth-1, True, alpha, beta)[0])
             if alpha>= beta:
                 break
-        return beta
+        return (beta,child)
 def getFileContent(fName):
     if os.path.exists(fName):
         with open(fName, 'r') as f:
@@ -86,7 +87,7 @@ class Node:
 class morrisGame:
     def __init__(self):
         self.state = 'xxxxxxxxxxxxxxxxxxxxx'
-def StaticEstimate(state):
+def StaticEstimate(state,children):
     def SE_MidgameEndgamePos(numBlackPieces, numWhitePieces, numBlackMoves):
         if numBlackPieces <= 2:
             return 10000
@@ -101,7 +102,7 @@ def StaticEstimate(state):
     else:
         numWhitePieces = state.count('W')
         numBlackPieces = state.count('B')
-        L = GenerateMovesMidgameEndgame(state)
+        L = children
         numBlackMoves = len(L)
         return SE_MidgameEndgamePos(numBlackPieces, numWhitePieces, numBlackMoves)
 

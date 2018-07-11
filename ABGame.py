@@ -8,7 +8,8 @@ def main():
     try:
         root = functions.getFileContent(inputFile)
         child_branch, children= functions.run('midgame','alphabeta', root,depth,True)
-        functions.writeToFile(outputFile,children[child_branch])
+        print("here : ",child_branch)
+        #functions.writeToFile(outputFile,children[child_branch])
     except Exception as e:
         print("An Error occured :",e)
 

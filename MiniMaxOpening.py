@@ -8,7 +8,8 @@ def main():
     try:
         root = fun.getFileContent(inputFile)
         child_branch,children= fun.run('opening','minimax',root,depth,True)
-        fun.writeToFile(outputFile,children[child_branch])
+        print("child : ",child_branch)
+        #fun.writeToFile(outputFile,children[child_branch])
     except Exception as e:
         print("An Error occured :",e)
 
