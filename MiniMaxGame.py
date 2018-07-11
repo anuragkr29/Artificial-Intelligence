@@ -1,4 +1,4 @@
-import functions as fun
+import functions
 import sys
 def main():
     args = (sys.argv)
@@ -6,9 +6,9 @@ def main():
     outputFile= str(args[2])
     depth = int(args[3])
     try:
-        root = fun.getFileContent(inputFile)
-        child_branch,children= fun.run('opening','minimax',root,depth,True)
-        fun.writeToFile(outputFile,children[child_branch])
+        root = functions.getFileContent(inputFile)
+        child_branch, children= functions.run('midgame','minimax', root,depth,True)
+        functions.writeToFile(outputFile,children[child_branch])
     except Exception as e:
         print("An Error occured :",e)
 

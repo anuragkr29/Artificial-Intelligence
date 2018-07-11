@@ -3,33 +3,50 @@ from config_board import neighbor_positions,board_position, position_to_num
 import os
 import sys
 
-def MiniMax(root, depth, isMaxStep):
-    children = fun.GenerateMovesOpening(root)
+def run(state, method, *args):
+    if state == 'opening':
+        if method == 'minimax':
+            print('calling GenerateMovesOpening with Minimax');
+            return MiniMax(GenerateMovesOpening,*args),GenerateMovesOpening(args[0])
+        else :
+            print('calling GenerateMovesOpening with AlphaBeta');
+            return AlphaBeta(GenerateMovesOpening,*args),GenerateMovesOpening(args[0])
+    elif state == 'midgame' or state == 'endgame':
+        if method == 'minimax':
+            print('calling GenerateMovesMidgameEndgame with Minimax');
+            return MiniMax(GenerateMovesMidgameEndgame,*args),GenerateMovesMidgameEndgame(args[0])
+        else :
+            print('calling GenerateMovesMidgameEndgame with AlphaBeta');
+            return AlphaBeta(GenerateMovesMidgameEndgame,*args),GenerateMovesMidgameEndgame(args[0])
+    else :
+        raise Exception('Enter a correct state and method');
+def MiniMax(successor, root, depth, isMaxStep):
+    children = successor(root)
     if depth == 0 or len(children) ==0 :
-        return fun.SEOpening(root)
+        return SEOpening(root)
     elif isMaxStep:
         v = float("-inf")
         for child in children:
-            v = max(v,MiniMax(child, depth-1, False))
+            v = max(v,MiniMax(successor,child, depth-1, False))
         return v
     elif not isMaxStep:
         v = float("inf")
         for child in children:
-            v = min(v,MiniMax(child, depth-1, True))
+            v = min(v,MiniMax(successor,child, depth-1, True))
         return v
-def alphabeta(root, depth, alpha, beta, isMaxStep):
-    children = GenerateMovesOpening(root)
+def AlphaBeta(successor, root, depth, alpha, beta, isMaxStep):
+    children = successor(root)
     if depth == 0 or len(children) ==0 :
         return SEOpening(root)
     elif isMaxStep:
         for child in children:
-            alpha = max(alpha,alphabeta(child, depth-1,alpha, beta, False))
+            alpha = max(successor, alpha,alphabeta(child, depth-1,alpha, beta, False))
             if alpha>= beta:
                 break
         return alpha
     elif not isMaxStep:
         for child in children:
-            beta = min(beta,alphabeta(child, depth-1,alpha, beta, True))
+            beta = min(beta,alphabeta(successor, child, depth-1,alpha, beta, True))
             if alpha>= beta:
                 break
         return beta
