@@ -34,19 +34,23 @@ def MiniMax(successor, root, depth, isMaxStep):
         for child in children:
             v = min(v,MiniMax(successor,child, depth-1, True))
         return v
-def AlphaBeta(successor, root, depth, alpha, beta, isMaxStep):
+def AlphaBeta(successor, root, depth, isMaxStep, alpha=None, beta=None):
+    if alpha is None :
+        alpha = float('-inf')
+    if beta is None:
+        beta = float('inf')
     children = successor(root)
     if depth == 0 or len(children) ==0 :
         return SEOpening(root)
     elif isMaxStep:
         for child in children:
-            alpha = max(successor, alpha,alphabeta(child, depth-1,alpha, beta, False))
+            alpha = max(alpha, AlphaBeta(successor, child, depth-1, False, alpha, beta))
             if alpha>= beta:
                 break
         return alpha
     elif not isMaxStep:
         for child in children:
-            beta = min(beta,alphabeta(successor, child, depth-1,alpha, beta, True))
+            beta = min(beta, AlphaBeta(successor, child, depth-1, True, alpha, beta))
             if alpha>= beta:
                 break
         return beta
