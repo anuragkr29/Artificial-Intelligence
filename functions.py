@@ -48,6 +48,12 @@ class morrisGame:
                     bestchild=child
             return v, bestchild
 
+    def blackMove(self, board):
+        board = board.replace('B', '$')
+        board = board.replace('W', 'B')
+        board = board.replace('$', 'W')
+        return board
+
     def AlphaBeta(self, successor, staticFun, root, depth, isMaxStep, alpha=None, beta=None):
         if alpha is None :
             alpha = float('-inf')
