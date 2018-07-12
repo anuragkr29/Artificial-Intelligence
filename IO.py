@@ -14,7 +14,7 @@ def getFileContent(fName):
         with open(fName, 'r') as f:
             try:
                 file_content = f.read()
-                print("Input position   : {}".format(file_content), end="  ")
+                print("Input position   : {}".format(file_content),)
                 return file_content
             except :
                 print('Error opening the file')
