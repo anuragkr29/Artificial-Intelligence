@@ -1,16 +1,17 @@
-import functions
-import sys
+from functions import morrisGame
+import IO
+
+
 def main():
-    args = (sys.argv)
-    inputFile= str(args[1])
-    outputFile= str(args[2])
-    depth = int(args[3])
+    root, outputFile, depth = IO.getInput()
     try:
-        root = functions.getFileContent(inputFile)
-        child_branch, children= functions.run('midgame','minimax', root,depth,True)
-        functions.writeToFile(outputFile,children[child_branch])
+        game = morrisGame()
+        estimate, next_move= game.run('midgame', 'minimax', root, depth, True)
+        IO.writeToFile(outputFile, next_move)
+        game.printOutput(estimate, 'MiniMax')
     except Exception as e:
-        print("An Error occured :",e)
+        print("An Error occured :", e)
+
 
 if __name__ == "__main__":
-	main()
+    main()
