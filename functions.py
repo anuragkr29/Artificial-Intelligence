@@ -13,15 +13,17 @@ class morrisGame:
             if method == 'minimax':
                 #print('calling GenerateMovesOpening with Minimax')
                 return self.MiniMax(self.GenerateMovesOpening, self.SEOpening, *args)
+            elif method == 'improved':
+                return self.MiniMax(self.GenerateMovesOpening, self.SEOpeningImproved, *args)
             else:
                 #print('calling GenerateMovesOpening with AlphaBeta')
                 return self.AlphaBeta(self.GenerateMovesOpening, self.SEOpening, *args)
         elif state == 'midgame' or state == 'endgame':
             if method == 'minimax':
-                #print('calling GenerateMovesMidgameEndgame with Minimax')
                 return self.MiniMax(self.GenerateMovesMidgameEndgame, self.StaticEstimate,*args)
+            elif method == 'improved':
+                return self.MiniMax(self.GenerateMovesOpening, self.SEOpeningImproved, *args)
             else:
-                #print('calling GenerateMovesMidgameEndgame with AlphaBeta')
                 return self.AlphaBeta(self.GenerateMovesMidgameEndgame, self.StaticEstimate, *args)
         else :
             raise Exception('Enter a correct state and method')
@@ -35,7 +37,7 @@ class morrisGame:
             v = float("-inf")
             for child in children:
                 val, tempchild = self.MiniMax(successor, staticFun,child, depth-1, False)
-                if val > v:
+                if val >= v:
                     v = val
                     bestchild=child
             return v, bestchild
@@ -43,7 +45,7 @@ class morrisGame:
             v = float("inf")
             for child in children:
                 val, tempchild = self.MiniMax(successor, staticFun,child, depth-1, True)
-                if val < v:
+                if val <= v:
                     v = val
                     bestchild=child
             return v, bestchild
@@ -56,9 +58,9 @@ class morrisGame:
 
     def AlphaBeta(self, successor, staticFun, root, depth, isMaxStep, alpha=None, beta=None):
         if alpha is None :
-            alpha = float('-inf')
+            alpha = float('inf')
         if beta is None:
-            beta = float('inf')
+            beta = float('-inf')
         bestchild = ''
         children = successor(root)
         if depth == 0 or len(children) == 0:
@@ -67,27 +69,27 @@ class morrisGame:
         elif isMaxStep:
             for child in children:
                 val, tempchild = self.AlphaBeta(successor, staticFun, child, depth-1, False, alpha, beta)
-                if alpha < val:
-                    alpha = val
+                if beta <= val:
+                    beta = val
                     bestchild = child
-                if alpha >= beta:
+                if beta >= alpha:
                     break
-            return alpha, bestchild
+            return beta, bestchild
         elif not isMaxStep:
             for child in children:
                 val, tempchild = self.AlphaBeta(successor, staticFun, child, depth-1, True, alpha, beta)
-                if beta > val:
-                    beta = val
+                if alpha >= val:
+                    alpha = val
                     bestchild = child
-                if alpha >= beta:
+                if beta >= alpha:
                     break
-            return beta, bestchild
+            return alpha, bestchild
 
     def printOutput(self, estimate, method):
         print("Positions evaluated by static estimation : {}".format(self.numberOfPositionEvaluated))
         print("{} Estimate : {}".format(method, estimate))
 
-    def getBumberOfStaticEvaluation(self):
+    def getNumberOfStaticEvaluation(self):
         return self.numberOfPositionEvaluated
 
     class Node:
@@ -121,6 +123,32 @@ class morrisGame:
         numWhitePieces = board.count('W')
         numBlackPieces = board.count('B')
         return numWhitePieces - numBlackPieces
+
+    def StaticEstimateImproved(self, state, children):
+        def SE_MidgameEndgamePos(numBlackPieces, numWhitePieces, numBlackMoves):
+            if numBlackPieces <= 2:
+                return 10000
+            elif numWhitePieces <= 2:
+                return -10000
+            elif numBlackMoves == 0:
+                return 10000
+            else:
+                return (1000*(numWhitePieces-numBlackPieces)-numBlackMoves) + (self.getNumberOfMillsNextMove(state)*2000) - (self.getNumberOfBlockedPositions(state)*250)
+        if state is None or state == '':
+            return 0
+        else:
+            self.numberOfPositionEvaluated += 1
+            numWhitePieces = state.count('W')
+            numBlackPieces = state.count('B')
+            L = children
+            numBlackMoves = len(L)
+            return SE_MidgameEndgamePos(numBlackPieces, numWhitePieces, numBlackMoves)
+
+    def SEOpeningImproved(self, board, *args):
+        self.numberOfPositionEvaluated += 1
+        numWhitePieces = board.count('W')
+        numBlackPieces = board.count('B')
+        return numWhitePieces - numBlackPieces + self.getNumberOfMillsNextMove(board)*10 - self.getNumberOfBlockedPositions(board)*2
 
     def GetNeighbors(self, position):
         if 0 <= position < 21:
@@ -222,3 +250,44 @@ class morrisGame:
     def GenerateMovesOpening(self, board):
         return self.GenerateAdd(board)
 
+    def isBlocked(self, position, board):
+        if board[position] == 'W':
+            neighbours = self.GetNeighbors(position)
+            for i in neighbours:
+                if board[i] == 'x':
+                    return False
+            else:
+                return True
+        return False
+
+    def getNumberOfBlockedPositions(self, board):
+        numBlockedPos = 0
+        for index, value in enumerate(board):
+            if self.isBlocked(index, board):
+                numBlockedPos += 1
+        return numBlockedPos
+
+    def getNumberOfMillsNextMove(self, board):
+        numberOfMillsNextMove = 0
+        for index, value in enumerate(board):
+            neighbours = self.GetNeighbors(index)
+            for val in neighbours:
+                if val == index:
+                    continue
+                elif board[val] == 'x':
+                    b = list(board)
+                    b[val] = 'W'
+                    new_board = ''.join(b)
+                    if self.checkMill(index, new_board):
+                        numberOfMillsNextMove += 1
+        return numberOfMillsNextMove
+
+    def printBoard(self, board):
+        print('{one}   {two}   {three}   {four}   {five}   {six}   {seven}'.format(one=board[18],two='x',three='x',four=board[19],five='x',six='x',seven=board[20]))
+        print('{one}   {two}   {three}   {four}   {five}   {six}   {seven}'.format(one=' ',two=board[15],three=' ',four=board[15],five=' ',six=board[17],seven=' '))
+        print('{one}   {two}   {three}   {four}   {five}   {six}   {seven}'.format(one=' ',two=' ',three=board[12],four=board[13],five=board[14],six=' ',seven=' '))
+        print('{one}   {two}   {three}   {four}   {five}   {six}   {seven}'.format(one=board[6],two=board[7],three=board[8],four=' ',five=board[9],six=board[10],seven=board[11]))
+        print('{one}   {two}   {three}   {four}   {five}   {six}   {seven}'.format(one=' ',two=' ',three=board[4],four=' ',five=board[5],six=' ',seven=' '))
+        print('{one}   {two}   {three}   {four}   {five}   {six}   {seven}'.format(one=' ',two=board[2],three=' ',four=' ',five=' ',six=board[3],seven=' '))
+        print('{one}   {two}   {three}   {four}   {five}   {six}   {seven}'.format(one=board[0],two=' ',three=' ',four=' ',five=' ',six=' ',seven=board[1]))
+        print('-----------------------------------------------------------')
