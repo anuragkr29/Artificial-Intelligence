@@ -22,7 +22,7 @@ class morrisGame:
             if method == 'minimax':
                 return self.MiniMax(self.GenerateMovesMidgameEndgame, self.StaticEstimate,*args)
             elif method == 'improved':
-                return self.MiniMax(self.GenerateMovesOpening, self.SEOpeningImproved, *args)
+                return self.MiniMax(self.GenerateMovesMidgameEndgame, self.SEOpeningImproved, *args)
             else:
                 return self.AlphaBeta(self.GenerateMovesMidgameEndgame, self.StaticEstimate, *args)
         else :
@@ -133,7 +133,7 @@ class morrisGame:
             elif numBlackMoves == 0:
                 return 10000
             else:
-                return (1000*(numWhitePieces-numBlackPieces)-numBlackMoves) + (self.getNumberOfMillsNextMove(state)*2000) - (self.getNumberOfBlockedPositions(state)*250)
+                return (100*(numWhitePieces-numBlackPieces)-numBlackMoves) + (self.getNumberOfMillsNextMove(state)*1000) - (self.getNumberOfBlockedPositions(state)*250)
         if state is None or state == '':
             return 0
         else:
