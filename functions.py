@@ -22,7 +22,7 @@ class morrisGame:
             if method == 'minimax':
                 return self.MiniMax(self.GenerateMovesMidgameEndgame, self.StaticEstimate,*args)
             elif method == 'improved':
-                return self.MiniMax(self.GenerateMovesMidgameEndgame, self.SEOpeningImproved, *args)
+                return self.MiniMax(self.GenerateMovesMidgameEndgame, self.StaticEstimateImproved, *args)
             else:
                 return self.AlphaBeta(self.GenerateMovesMidgameEndgame, self.StaticEstimate, *args)
         else :
